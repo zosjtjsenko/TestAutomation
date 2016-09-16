@@ -208,7 +208,7 @@ def getTicsInstaller(installerPath,licPath):
     
     		
 #************************** MAIN program starts here **************************
-if ( __name__ == "__main__"):
+if (__name__ == "__main__"):
 	#Download the right version of TICS from the Jenkins build servers
     ticsInstallerPath = "D:\\testDATA\sharedFolder\\tics.exe"
     licPath = "D:\\testDATA\sharedFolder\\lic.dat"	
