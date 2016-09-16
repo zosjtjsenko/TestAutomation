@@ -35,7 +35,7 @@ def singleServerInstall(exePath, pathToLic):
     time.sleep(delay)
     print "[X]"
 
-    #3 Choose install location default = C:\Program Files (x86)\TIOBE\TICSBASIC4CS
+    #3 Choose install location 
     autoit.control_click("TICS Setup", "Button2")
     print "Choose install location passed",
     time.sleep(delay)
@@ -187,7 +187,7 @@ def modifyServer_txt(fileLoc):
 
 #****Main program starts here*************************
 	
-if (__name__ == "__main__"):
+if ( __name__ == "__main__"):
 
     if len (sys.argv) >1:
         installerType = int(sys.argv[1])     
