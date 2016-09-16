@@ -1,13 +1,18 @@
-# This script will start the TICS installer and then will automatically click the 
+# This script will start the TICS installer and then will automatically click the
 # buttons and fills in the textfields in the installer
-# AutoIt functions can be found here : https://www.autoitscript.com/autoit3/docs/functions/ 
-#
+# AutoIt functions can be found here : https://www.autoitscript.com/autoit3/docs/functions/
+
 
 import autoit
 import time
 import os
 import sys
+from shutil import copyfile
+import re
+import fileinput
 
+
+# MultiServerInstall will automatically go through the multi server option from the TICS installer
 def singleServerInstall(exePath, pathToLic):
     #check if TICS setup is starting with the right window
     winId = autoit.control_get_text("TICS Setup", "Static13")
@@ -15,27 +20,27 @@ def singleServerInstall(exePath, pathToLic):
         print "Expected window"
     else:
         print "unexpected window"
-    
+
     print "Single Server Install initialized\n\n"
-    
+
     #1 welcome screen
-    autoit.control_click("TICS Setup", "Button2")	
+    autoit.control_click("TICS Setup", "Button2")
     print "Welcome screen passed",
     time.sleep(delay)
     print "[X]"
-    
+
     #2 choose components -> default = single server
     autoit.control_click("TICS Setup", "Button2")
     print "Choose components passed",
     time.sleep(delay)
-    print "[X]"	
-    
+    print "[X]"
+
     #3 Choose install location default = C:\Program Files (x86)\TIOBE\TICSBASIC4CS
     autoit.control_click("TICS Setup", "Button2")
     print "Choose install location passed",
     time.sleep(delay)
     print "[X]"
-    
+
     #4 Company information and license enter path to lic.dat	
     autoit.win_activate("TICS Setup")
     autoit.control_set_text("TICS Setup", "Edit5", pathToLic)
@@ -43,13 +48,13 @@ def singleServerInstall(exePath, pathToLic):
     print "Company information passed",	
     time.sleep(delay)
     print "[X]"
-        
+
     #5 Tics Add-ins
     autoit.control_click("TICS Setup", "Button2")
     print "Tics add-ins passed",
     time.sleep(delay)
     print "[X]"
-    
+ 
     
     #6 Install Apache select "Yes, I want to install/upgrade Apache (recommended)" Second time running the installer this step has to be passed
     if autoit.win_exists("Install Apache/PHP5"):
@@ -59,7 +64,7 @@ def singleServerInstall(exePath, pathToLic):
         print "Apache installation passed",
         time.sleep(2)
         print "[X]"
-    
+   
     #7 Tics Enter TICSBuildService Username and Password
     autoit.win_wait_active("TICS Setup", 20)	
     autoit.control_click("TICS Setup", "Button2")	
@@ -99,8 +104,8 @@ def singleServerInstall(exePath, pathToLic):
     time.sleep(2)
     print "[X]"
 
+# multiServerInstall will automatically go through the multi server option from the TICS installer 
 def multiServerInstall(exePath):
-
     print "Multi Server Install initialized\n\n"
     
     #1 welcome screen
@@ -163,26 +168,45 @@ def multiServerInstall(exePath):
     time.sleep(2)
     print "[X]"
 
+# modifyServer_txt is commenting the "copyright" block in the SERVER.txt files
+def modifyServer_txt(fileLoc):
+    copyfile(fileLoc, fileLoc+".bak")
+    
+    f = open(fileLoc, 'r')    
+    for x, line in enumerate(f):    
+        if re.match(r'.*COPYRIGHT.*', line) is not None:       
+            lineNumber = x             
+    f.close()
+        
+    for line in fileinput.input(fileLoc,inplace=True):
+        if fileinput.filelineno() >= lineNumber -1 and fileinput.filelineno()<= lineNumber +6:
+            repLine = "#" + line
+            print repLine,
+        else:
+            print line,	
 
 #****Main program starts here*************************
 	
-if ( __name__ == "__main__"):
+if (__name__ == "__main__"):
 
-    installerType = int(sys.argv[1])
-    print installerType
-    #variables
+    if len (sys.argv) >1:
+        installerType = int(sys.argv[1])     
     delay = 1
     exePath = "E:\\sharedFolder\\tics.exe"
     pathToLic = "E:\\sharedFolder\\lic.dat"
-    
+
     time.sleep(15)
     #Run the application and wait till the application is actived
     autoit.run(exePath)
     autoit.win_wait_active("TICS Setup", 3)
-    	
+	
     unused_cls_return_value= os.system('cls')
-    	
-    #singleServerInstall(exePath, pathToLic)
+	
+    singleServerInstall(exePath, pathToLic)
+
     if installerType == True:
         print ("Installing multiserver")
         multiServerInstall(exePath)
+
+    fileLoc = "C:\\Users\\zosjtsjenko\\Documents\\GitHub\\TestAutomation\\python\\Files\\SERVER.txt" 	
+    modifyServer_txt(fileLoc)
